@@ -30,7 +30,7 @@ def eccentricity(contour):
         b = MA / 2
         ecc = np.sqrt(a ** 2 - b ** 2) / a
     except Exception:
-        ecc=0
+        ecc=1
     return ecc
 
 def empty(a):
