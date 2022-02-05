@@ -3,9 +3,8 @@ import numpy as np
 import cv2
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_EXPOSURE,-96/11)
 def colorFilter(img,lower, upper):
-    blurred = cv2.GaussianBlur(img, (9,9), 0)
+    blurred = cv2.GaussianBlur(img,(7,7),0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
     return mask
@@ -16,8 +15,8 @@ def getContours(mask, minArea, e):
         newContours = []
         for contour in contours:
             approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
-            eccen = eccentricity(contour)>e
-            if cv2.contourArea(contour)>minArea and 6<len(approx)<9 and eccen:
+            eccen = eccentricity(contour)<e
+            if cv2.contourArea(contour)>minArea and eccen and len(approx)>7:
                     newContours.append(contour)
         newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
         if len(newContours)==0:
@@ -69,7 +68,7 @@ while True:
 
     cv2.imshow('image', mask)
     
-    img = cv2.drawContours(img, getContours(mask, 250, .2), -1, (0,255,0), 3)
+    img = cv2.drawContours(img, getContours(mask, 100, .5), -1, (0,255,0), 3)
     cv2.imshow('normal', img)
     
     
