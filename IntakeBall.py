@@ -4,7 +4,7 @@ import cv2
 
 cap = cv2.VideoCapture(0)
 def colorFilter(img,lower, upper):
-    blurred = cv2.GaussianBlur(img,(7,7),0)
+    blurred = cv2.GaussianBlur(img,(9,9),0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
     return mask
@@ -42,7 +42,7 @@ cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV", 300, 300)
 cv2.createTrackbar("HUE Min", "HSV", 100, 179, empty)
 cv2.createTrackbar("HUE Max", "HSV", 140, 179, empty)
-cv2.createTrackbar("SAT Min", "HSV", 150, 255, empty)
+cv2.createTrackbar("SAT Min", "HSV", 168, 255, empty)
 cv2.createTrackbar("SAT Max", "HSV", 255, 255, empty)
 cv2.createTrackbar("VALUE Min", "HSV", 0, 255, empty)
 cv2.createTrackbar("VALUE Max", "HSV", 255, 255, empty)
