@@ -2,30 +2,37 @@
 import numpy as np
 import cv2
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_EXPOSURE,-96/11)
-# cap.set(cv2.CAP_PROP_EXPOSURE,-5)
 def colorFilter(img,lower, upper):
-    blurred = cv2.GaussianBlur(img, (3,3), 0)
+    blurred = cv2.GaussianBlur(img, (9,9), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
     return mask
 
-def getContours(mask, minArea=40):
-        
+def getContours(mask, minArea, e):
         edges = cv2.Canny(mask,100, 200)
         contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         newContours = []
-      
         for contour in contours:
             approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
-
-            if cv2.contourArea(contour)>minArea and len(approx)>8:
+            eccen = eccentricity(contour)>e
+            if cv2.contourArea(contour)>minArea and 6<len(approx)<9 and eccen:
                     newContours.append(contour)
-        sortedContoursByArea=sorted(newContours, key=cv2.contourArea, reverse=False)
-        if len(newContours)!=0:
-            return [newContours[0]]
-        return []
+        newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
+        if len(newContours)==0:
+            return []
+        return newContours[0]
+
+def eccentricity(contour):
+    try:
+        (_, _), (MA, ma), _ = cv2.fitEllipse(contour)
+        a = ma / 2
+        b = MA / 2
+        ecc = np.sqrt(a ** 2 - b ** 2) / a
+    except Exception:
+        ecc=0
+    return ecc
 
 def empty(a):
     pass
@@ -62,7 +69,7 @@ while True:
 
     cv2.imshow('image', mask)
     
-    img = cv2.drawContours(img, getContours(mask), -1, (0,255,0), 3)
+    img = cv2.drawContours(img, getContours(mask, 250, .2), -1, (0,255,0), 3)
     cv2.imshow('normal', img)
     
     
