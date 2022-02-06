@@ -3,44 +3,42 @@ import numpy as np
 import cv2
 import math
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 
 def get_x_offset(x, wanted_x):
-        return x - (wanted_x)
+    return x - (wanted_x)
 
 
-def getAngle(Center, center_x, height, width):
-        angle = (math.atan2(get_x_offset(Center[0], center_x),  height))*180/math.pi % 360.0
-        if angle>180:
-            angle= 360-angle
-        if Center[0]>=width/2:
-            return angle
-        else:
-            return -angle
+def getAngle(center, center_x, height, width):
+    angle = (math.atan2(get_x_offset(center[0], center_x),  height))*180/math.pi % 360.0
+    if angle>180:
+        angle= 360-angle
+    if center[0]>=width/2:
+        return angle
+    else:
+        return -angle
     
 def colorFilter(img,lower, upper):
     blurred = cv2.GaussianBlur(img,(11,11),0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
+    kernel=np.ones((10,10),np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     return mask
 
 def getContours(mask, minArea, e):
-    
     edges = cv2.Canny(mask,100, 200)
     contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     newContours = []
-    
     for contour in contours:
         approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
         eccen = eccentricity(contour)<e
         if cv2.contourArea(contour)>minArea and eccen and len(approx)>1:
             newContours.append(contour)
-
     if len(newContours)==0:
         return None
     newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
-    
     return newContours[0]
 
 def getContoursCenter(contour):
@@ -53,7 +51,6 @@ def getContoursCenter(contour):
     else:
         return None
     return [x1, y1]
-
 
 def eccentricity(contour):
     try:
@@ -82,7 +79,7 @@ cv2.createTrackbar("VALUE Max", "HSV", 255, 255, empty)
 
 while True:
     success, img = cap.read()
-    # # read trackbar positions
+    # read trackbar positions
     h_min = cv2.getTrackbarPos("HUE Min", "HSV")
     h_max = cv2.getTrackbarPos("HUE Max", "HSV")
     s_min = cv2.getTrackbarPos("SAT Min", "HSV")
@@ -105,23 +102,18 @@ while True:
         
     center_x, center_y = width/2, height/2
     
-    Center = getContoursCenter(getContours(mask,100,0.5))
+    center = getContoursCenter(getContours(mask,100,0.5))
 
     angle=180
     
-    if Center is not None:
-        
- 
-        Center[0]=int(Center[0])
-        Center[1]=int(Center[1])
-        Center=(Center[0], Center[1])
-        img=cv2.circle(img, Center, 10, (0,0,255),-1)
-        angle = getAngle(Center, center_x, height, width)
-        print(angle)
-    else:
-        print(angle)
+    if center is not None:
+        center[0]=int(center[0])
+        center[1]=int(center[1])
+        center=(center[0], center[1])
+        img=cv2.circle(img, center, 10, (0,0,255),-1)
+        angle = getAngle(center, center_x, height, width)
+    print(angle)
 
-  
     cv2.imshow('normal', img)
     
     
