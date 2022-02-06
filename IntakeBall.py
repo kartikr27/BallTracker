@@ -1,27 +1,59 @@
 
 import numpy as np
 import cv2
+import math
 
 cap = cv2.VideoCapture(0)
+
+
+def get_x_offset(x, wanted_x):
+        return x - (wanted_x)
+
+
+def getAngle(Center, center_x, height, width):
+        angle = (math.atan2(get_x_offset(Center[0], center_x),  height))*180/math.pi % 360.0
+        if angle>180:
+            angle= 360-angle
+        if Center[0]>=width/2:
+            return angle
+        else:
+            return -angle
+    
 def colorFilter(img,lower, upper):
-    blurred = cv2.GaussianBlur(img,(9,9),0)
+    blurred = cv2.GaussianBlur(img,(11,11),0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
     return mask
 
 def getContours(mask, minArea, e):
-        edges = cv2.Canny(mask,100, 200)
-        contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        newContours = []
-        for contour in contours:
-            approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
-            eccen = eccentricity(contour)<e
-            if cv2.contourArea(contour)>minArea and eccen and len(approx)>7:
-                    newContours.append(contour)
-        newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
-        if len(newContours)==0:
-            return []
-        return newContours[0]
+    
+    edges = cv2.Canny(mask,100, 200)
+    contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    newContours = []
+    
+    for contour in contours:
+        approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
+        eccen = eccentricity(contour)<e
+        if cv2.contourArea(contour)>minArea and eccen and len(approx)>1:
+            newContours.append(contour)
+
+    if len(newContours)==0:
+        return None
+    newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
+    
+    return newContours[0]
+
+def getContoursCenter(contour):
+    x1=0
+    y1=0
+    M = cv2.moments(contour)
+    if M["m00"] !=0:
+        x1 = int(M["m10"] / M["m00"])
+        y1 = int(M["m01"] / M["m00"])
+    else:
+        return None
+    return [x1, y1]
+
 
 def eccentricity(contour):
     try:
@@ -40,9 +72,9 @@ def empty(a):
 # trackbars for adjusting hsv
 cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV", 300, 300)
-cv2.createTrackbar("HUE Min", "HSV", 100, 179, empty)
+cv2.createTrackbar("HUE Min", "HSV", 96, 179, empty)
 cv2.createTrackbar("HUE Max", "HSV", 140, 179, empty)
-cv2.createTrackbar("SAT Min", "HSV", 168, 255, empty)
+cv2.createTrackbar("SAT Min", "HSV", 198, 255, empty)
 cv2.createTrackbar("SAT Max", "HSV", 255, 255, empty)
 cv2.createTrackbar("VALUE Min", "HSV", 0, 255, empty)
 cv2.createTrackbar("VALUE Max", "HSV", 255, 255, empty)
@@ -64,11 +96,32 @@ while True:
     # color mask
     mask = colorFilter(img,lower,upper)
   
-    
-
     cv2.imshow('image', mask)
+
     
-    img = cv2.drawContours(img, getContours(mask, 100, .5), -1, (0,255,0), 3)
+    # img = cv2.drawContours(img, getContours(mask, 100, .5), -1, (0,255,0), 3)
+    # img = cv2.drawContours(img, getContoursCenter(mask, 100, .5), 0, (0,255,0), 5)
+    height, width, _ = img.shape
+        
+    center_x, center_y = width/2, height/2
+    
+    Center = getContoursCenter(getContours(mask,100,0.5))
+
+    angle=180
+    
+    if Center is not None:
+        
+ 
+        Center[0]=int(Center[0])
+        Center[1]=int(Center[1])
+        Center=(Center[0], Center[1])
+        img=cv2.circle(img, Center, 10, (0,0,255),-1)
+        angle = getAngle(Center, center_x, height, width)
+        print(angle)
+    else:
+        print(angle)
+
+  
     cv2.imshow('normal', img)
     
     
