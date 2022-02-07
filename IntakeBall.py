@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import math
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 
 def get_x_offset(x, wanted_x):
@@ -34,7 +34,7 @@ def getContours(mask, minArea, e):
     for contour in contours:
         approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
         eccen = eccentricity(contour)<e
-        if cv2.contourArea(contour)>minArea and eccen and len(approx)>1:
+        if cv2.contourArea(contour)>minArea and eccen and len(approx)>7:
             newContours.append(contour)
     if len(newContours)==0:
         return None
