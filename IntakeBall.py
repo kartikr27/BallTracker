@@ -1,9 +1,11 @@
-
 import numpy as np
 import cv2
 import math
+import ds
 
-cap = cv2.VideoCapture(0)
+camera = 0
+
+cap = cv2.VideoCapture(camera)
 
 
 def get_x_offset(x, wanted_x):
@@ -20,10 +22,11 @@ def getAngle(center, center_x, height, width):
         return -angle
     
 def colorFilter(img,lower, upper):
-    blurred = cv2.GaussianBlur(img,(11,11),0)
+    blurred = cv2.GaussianBlur(img,(17,17),0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
-    kernel=np.ones((10,10),np.uint8)
+    x=5
+    kernel=np.ones((x,x),np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     return mask
 
@@ -66,7 +69,6 @@ def empty(a):
     pass
 
 
-# trackbars for adjusting hsv
 cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV", 300, 300)
 cv2.createTrackbar("HUE Min", "HSV", 96, 179, empty)
@@ -76,10 +78,11 @@ cv2.createTrackbar("SAT Max", "HSV", 255, 255, empty)
 cv2.createTrackbar("VALUE Min", "HSV", 0, 255, empty)
 cv2.createTrackbar("VALUE Max", "HSV", 255, 255, empty)
 
-
+window  = ds.Window(3)
+undetected = 0
 while True:
     success, img = cap.read()
-    # read trackbar positions
+
     h_min = cv2.getTrackbarPos("HUE Min", "HSV")
     h_max = cv2.getTrackbarPos("HUE Max", "HSV")
     s_min = cv2.getTrackbarPos("SAT Min", "HSV")
@@ -90,32 +93,28 @@ while True:
     lower = np.array([h_min, s_min, v_min])
     upper = np.array([h_max, s_max, v_max])
 
-    # color mask
     mask = colorFilter(img,lower,upper)
   
     cv2.imshow('image', mask)
 
-    
-    # img = cv2.drawContours(img, getContours(mask, 100, .5), -1, (0,255,0), 3)
-    # img = cv2.drawContours(img, getContoursCenter(mask, 100, .5), 0, (0,255,0), 5)
     height, width, _ = img.shape
         
     center_x, center_y = width/2, height/2
     
-    center = getContoursCenter(getContours(mask,100,0.5))
+    center = getContoursCenter(getContours(mask,100,0.6))
 
-    angle=180
+    rot_angle=180
     
     if center is not None:
         center[0]=int(center[0])
         center[1]=int(center[1])
         center=(center[0], center[1])
         img=cv2.circle(img, center, 10, (0,0,255),-1)
-        angle = getAngle(center, center_x, height, width)
-    print(angle)
+        rot_angle = getAngle(center, center_x, height, width)
+    window.add(rot_angle)
+    print(window.getAverage())
 
     cv2.imshow('normal', img)
-    
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         print("HUE min: " + str(h_min))
@@ -126,8 +125,4 @@ while True:
         print("VALUE max: " + str(v_max))
         break
 
-
-
 cv2.destroyAllWindows()
-
-
