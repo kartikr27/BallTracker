@@ -20,11 +20,11 @@ def getAngle(center, center_x, height, width):
         return -angle
     
 def colorFilter(img,lower, upper):
-    blurred = cv2.GaussianBlur(img,(11,11),0)
+    blurred = cv2.GaussianBlur(img,(17,17),0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper) 
-    kernel=np.ones((10,10),np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    # kernel=np.ones((10,10),np.uint8)
+    # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     return mask
 
 def getContours(mask, minArea, e):
@@ -102,17 +102,17 @@ while True:
         
     center_x, center_y = width/2, height/2
     
-    center = getContoursCenter(getContours(mask,100,0.5))
+    center = getContoursCenter(getContours(mask,200,0.5))
 
-    angle=180
+    rot_angle=180
     
     if center is not None:
         center[0]=int(center[0])
         center[1]=int(center[1])
         center=(center[0], center[1])
         img=cv2.circle(img, center, 10, (0,0,255),-1)
-        angle = getAngle(center, center_x, height, width)
-    print(angle)
+        rot_angle = getAngle(center, center_x, height, width)
+    print(rot_angle)
 
     cv2.imshow('normal', img)
     
