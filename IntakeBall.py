@@ -37,7 +37,7 @@ def getContours(mask, minArea, e):
     for contour in contours:
         approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
         eccen = eccentricity(contour)<e
-        if cv2.contourArea(contour)>minArea and eccen and len(approx)>7:
+        if cv2.contourArea(contour)>minArea and eccen and len(approx)>6:
             newContours.append(contour)
     if len(newContours)==0:
         return None
@@ -71,9 +71,9 @@ def empty(a):
 
 cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV", 300, 300)
-cv2.createTrackbar("HUE Min", "HSV", 96, 179, empty)
+cv2.createTrackbar("HUE Min", "HSV", 90, 179, empty)
 cv2.createTrackbar("HUE Max", "HSV", 140, 179, empty)
-cv2.createTrackbar("SAT Min", "HSV", 198, 255, empty)
+cv2.createTrackbar("SAT Min", "HSV", 175, 255, empty)
 cv2.createTrackbar("SAT Max", "HSV", 255, 255, empty)
 cv2.createTrackbar("VALUE Min", "HSV", 0, 255, empty)
 cv2.createTrackbar("VALUE Max", "HSV", 255, 255, empty)
@@ -101,7 +101,7 @@ while True:
         
     center_x, center_y = width/2, height/2
     
-    center = getContoursCenter(getContours(mask,100,0.6))
+    center = getContoursCenter(getContours(mask,150,0.65))
 
     rot_angle=180
     
