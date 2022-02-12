@@ -39,8 +39,9 @@ def getContours(mask, minArea, e):
         eccen = eccentricity(contour)<e
         if cv2.contourArea(contour)>minArea and eccen and len(approx)>6:
             newContours.append(contour)
-        if cv2.contourArea(contour)>400:
-            newContours.append(contour)
+        # if cv2.contourArea(contour)>400:
+        #     newContours.append(contour)
+        #code above would accept all big blue contours, even if not circular
     if len(newContours)==0:
         return None
     newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
@@ -73,7 +74,7 @@ def empty(a):
 
 cv2.namedWindow("HSV")
 cv2.resizeWindow("HSV", 300, 300)
-cv2.createTrackbar("HUE Min", "HSV", 90, 179, empty)
+cv2.createTrackbar("HUE Min", "HSV", 94, 179, empty)#old value 90
 cv2.createTrackbar("HUE Max", "HSV", 140, 179, empty)
 cv2.createTrackbar("SAT Min", "HSV", 175, 255, empty)
 cv2.createTrackbar("SAT Max", "HSV", 255, 255, empty)
