@@ -3,7 +3,7 @@ import cv2
 import math
 import ds
 
-camera = 0
+camera = 1
 
 cap = cv2.VideoCapture(camera)
 
@@ -39,10 +39,12 @@ def getContours(mask, minArea, e):
         eccen = eccentricity(contour)<e
         if cv2.contourArea(contour)>minArea and eccen and len(approx)>6:
             newContours.append(contour)
+        if cv2.contourArea(contour)>400:
+            newContours.append(contour)
     if len(newContours)==0:
         return None
-    newContours=sorted(newContours, key=cv2.contourArea, reverse=True)
-    return newContours[0]
+    newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
+    return newContours[len(newContours)-1]
 
 def getContoursCenter(contour):
     x1=0
@@ -101,7 +103,7 @@ while True:
         
     center_x, center_y = width/2, height/2
     
-    center = getContoursCenter(getContours(mask,250,0.65))
+    center = getContoursCenter(getContours(mask,150,0.5))
 
     rot_angle=180
     
