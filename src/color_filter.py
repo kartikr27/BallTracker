@@ -3,11 +3,11 @@ import numpy as np
 # import rospy
 class ColorFilter:
     def __init__(self, frame):
-        self.frame = frame
-        self.frame = cv2.GaussianBlur(img,(17,17),0)
+       
+        self.frame = cv2.GaussianBlur(frame,(17,17),0)
 
 
-    def colorFilter(img,lower, upper):
+    def colorFilter(self, img,lower, upper):
         
         hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
         lower = np.array(rospy.get_param("~lower_hsv", [0,0,0]))

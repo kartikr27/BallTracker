@@ -6,24 +6,24 @@ class ContourDetection:
         self.mask = image
         self.minArea = minArea
         self.eccen = e
-    def getContours(self):
-        def getContours(mask, minArea, e):
-        edges = cv2.Canny(mask,100, 200)
-        contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        newContours = []
-        for contour in contours:
-            approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
-            eccen = eccentricity(contour)<e
-            if cv2.contourArea(contour)>minArea and eccen and len(approx)>6:
-                newContours.append(contour)
-            if cv2.contourArea(contour)>400:
-                newContours.append(contour)
-        if len(newContours)==0:
-            return None
-        newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
-        return newContours[len(newContours)-1]
 
-    def getContoursCenter(contour):
+    def getContours(self, mask, minArea, e):
+    edges = cv2.Canny(mask,100, 200)
+    contours, _= cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    newContours = []
+    for contour in contours:
+        approx = cv2.approxPolyDP(contour, .03*cv2.arcLength(contour, True), True)
+        eccen = eccentricity(contour)<e
+        if cv2.contourArea(contour)>minArea and eccen and len(approx)>6:
+            newContours.append(contour)
+        if cv2.contourArea(contour)>400:
+            newContours.append(contour)
+    if len(newContours)==0:
+        return None
+    newContours=sorted(newContours, key=cv2.contourArea, reverse=False)
+    return newContours[len(newContours)-1]
+
+    def getContoursCenter(self, contour):
     x1=0
     y1=0
     M = cv2.moments(contour)

@@ -63,13 +63,13 @@ class BallTracking
         def main(self):
             try:
                 r = rospy.Rate(rospy.get_param("~rate", 50))
-                while not rospy.is_shutdonw():
+                while not rospy.is_shutdown():
                     success, img = self.cap.read()
                     height, width, _ = img.shape
                         
                     center_x, center_y = width/2, height/2
-                    mask = colorFilter(img,lower,upper)
-                    center = getContoursCenter(getContours(mask,rospy.get_param("~minArea",150)),rospy.get_param("~e",0.5))
+                    mask = color_filter.ColorFilter(img,np.array(rospy.get_param("~lower_hsv", [0,0,0])),np.array(rospy.get_param("~higher_hsv", [0,0,0]))
+                    center = ContourDetection.getContoursCenter(getContours(mask,rospy.get_param("~minArea",150)),rospy.get_param("~e",0.5))
 
                     self.rotationAngle=180
                     
