@@ -15,6 +15,10 @@ from std_msgs.msg import Float32, Float64, Bool
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge, CvBridgeError
 
+import ball_tracking
+import color_filter
+import ContourDetection
+
 
 
 # cv2.namedWindow("HSV")
