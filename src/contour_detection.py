@@ -56,3 +56,6 @@ def getAngle(center, center_x, height, width):
         return angle
     else:
         return -angle
+
+def getBallArea(contour):
+    return cv2.contourArea(contour)

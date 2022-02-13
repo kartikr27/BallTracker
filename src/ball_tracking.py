@@ -80,7 +80,7 @@ class BallTracking
                         img=cv2.circle(img, center, 10, (0,0,255),-1)
                         rot_angle = getAngle(center, center_x, height, width)
                     self.rotationAngle.add(rot_angle)
-                    self.ballArea.add(cv2.contourArea)
+                    self.ballArea.add(getBallArea(contour))
                     rot_data = Float32()
                     rot_data.data = self.rotationAngle.getAverage()
 
@@ -88,7 +88,7 @@ class BallTracking
                     # ball_data.data = self.contourArea.getAverage()
 
                     self.rotation_pub.publish(rot_data)
-                    self.distance_pub.publish(cv2.contourArea(contour))
+                    self.distance_pub.publish(getBallArea(contour))
                     # print(window.getAverage())
 
         # cv2.imshow('normal', img)
