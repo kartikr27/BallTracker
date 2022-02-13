@@ -80,11 +80,11 @@ class BallTracking
                     rot_data = Float32()
                     rot_data.data = self.rotationAngle.getAverage()
 
-                    ball_data = Float32()
-                    ball_data.data = self.contourArea.getAverage()
+                    # ball_data = Float32()
+                    # ball_data.data = self.contourArea.getAverage()
 
                     self.rotation_pub.publish(rot_data)
-                    self.distance_pub.publish(distance_data)
+                    self.distance_pub.publish(cv2.contourArea(contour))
                     # print(window.getAverage())
 
         # cv2.imshow('normal', img)
@@ -98,7 +98,7 @@ class BallTracking
         #     print("VALUE max: " + str(v_max))
         #     break
 
-cv2.waitKey(3)
+    cv2.waitKey(3)
         # Sleeps to meet specified rate
         r.sleep()
     except KeyboardInterrupt:
